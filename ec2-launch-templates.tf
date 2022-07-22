@@ -2,7 +2,7 @@
 resource "aws_launch_template" "consul_server" {
   name_prefix            = "${var.main_project_tag}-server-lt-"
   image_id               = var.ami_id
-  instance_type          = "t3.micro"
+  instance_type          = "t3.small"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_server.id]
 
@@ -85,7 +85,7 @@ resource "aws_launch_template" "consul_client_web" {
 resource "aws_launch_template" "consul_client_api" {
   name_prefix            = "${var.main_project_tag}-api-lt-"
   image_id               = var.ami_id
-  instance_type          = "t3.micro"
+  instance_type          = "t3.small"
   key_name               = var.ec2_key_pair_name
   vpc_security_group_ids = [aws_security_group.consul_client.id]
 
