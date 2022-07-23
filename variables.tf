@@ -2,13 +2,13 @@
 variable "main_project_tag" {
   description = "Tag that will be attached to all resources."
   type        = string
-  default     = "getting-into-consul"
+  default     = "consul_nomad_test"
 }
 
 variable "aws_default_region" {
   description = "The default region that all resources will be deployed into."
   type        = string
-  default     = "us-east-1"
+  default     = "eu-north-1"
 }
 
 # VPC Variables
@@ -46,7 +46,7 @@ variable "vpc_private_subnet_count" {
 variable "ami_id" {
   description = "AMI ID to be used on all AWS EC2 Instances."
   type        = string
-  default     = "ami-0747bdcabd34c712a" # Latest Ubuntu 18.04 LTS (HVM), SSD Volume Type
+  default     = "ami-0ede84a5f28ec932a" # Latest Ubuntu 20.04 LTS (HVM), SSD Volume Type
 }
 
 variable "ec2_key_pair_name" {
@@ -107,6 +107,26 @@ variable "client_api_min_count" {
 
 variable "client_api_max_count" {
   description = "The maximum number of consul api clients."
+  type        = number
+  default     = 1
+}
+
+
+## Nomad Servers
+variable "nomad_server_desired_count" {
+  description = "The desired number of nomad servers."
+  type        = number
+  default     = 1
+}
+
+variable "nomad_server_min_count" {
+  description = "The minimum number of nomad servers."
+  type        = number
+  default     = 1
+}
+
+variable "nomad_server_max_count" {
+  description = "The maximum number of nomad servers."
   type        = number
   default     = 1
 }

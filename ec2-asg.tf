@@ -154,3 +154,60 @@ resource "aws_autoscaling_group" "consul_client_api" {
     }
   ]
 }
+
+
+
+
+
+# ASG for the Nomad server
+resource "aws_autoscaling_group" "nomad_server" {
+	name_prefix = "${var.main_project_tag}-nomad-server-asg-"
+
+	launch_template {
+    id = aws_launch_template.nomad_server.id
+    version = aws_launch_template.nomad_server.latest_version
+  }
+
+#	target_group_arns = [aws_lb_target_group.alb_targets_web.arn]
+
+	desired_capacity = var.nomad_server_desired_count
+  min_size = var.nomad_server_min_count
+  max_size = var.nomad_server_max_count
+
+	# AKA the subnets to launch resources in 
+  vpc_zone_identifier = aws_subnet.private.*.id
+
+  health_check_grace_period = 300
+  health_check_type = "EC2"
+  termination_policies = ["OldestLaunchTemplate"]
+  wait_for_capacity_timeout = 0
+
+  enabled_metrics = [
+    "GroupDesiredCapacity",
+    "GroupInServiceCapacity",
+    "GroupPendingCapacity",
+    "GroupMinSize",
+    "GroupMaxSize",
+    "GroupInServiceInstances",
+    "GroupPendingInstances",
+    "GroupStandbyInstances",
+    "GroupStandbyCapacity",
+    "GroupTerminatingCapacity",
+    "GroupTerminatingInstances",
+    "GroupTotalCapacity",
+    "GroupTotalInstances"
+  ]
+
+  tags = [
+    {
+      key = "Name"
+      value = "${var.main_project_tag}-nomad-server"
+      propagate_at_launch = true
+    },
+    {
+      key = "Project"
+      value = var.main_project_tag
+      propagate_at_launch = true
+    }
+  ]
+}

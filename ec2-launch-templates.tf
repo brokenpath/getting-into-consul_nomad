@@ -121,3 +121,46 @@ resource "aws_launch_template" "consul_client_api" {
     PROJECT_VALUE = var.main_project_tag
   }))
 }
+
+
+# Nomad Server API Launch Template
+# Consul Client Web Launch Template
+resource "aws_launch_template" "nomad_server" {
+  name_prefix            = "${var.main_project_tag}-nomad-server-lt-"
+  image_id               = var.ami_id
+  instance_type          = "t3.small"
+  key_name               = var.ec2_key_pair_name
+  vpc_security_group_ids = [aws_security_group.nomad_server.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.consul_instance_profile.name
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+
+    tags = merge(
+      { "Name" = "${var.main_project_tag}-nomad-server" },
+      { "Project" = var.main_project_tag }
+    )
+  }
+
+  tag_specifications {
+    resource_type = "volume"
+
+    tags = merge(
+      { "Name" = "${var.main_project_tag}-nomad-server-volume" },
+      { "Project" = var.main_project_tag }
+    )
+  }
+
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-nomad-server-lt" },
+    { "Project" = var.main_project_tag }
+  )
+
+  user_data = base64encode(templatefile("${path.module}/scripts/nomad-server.sh", {
+    PROJECT_TAG   = "Project"
+    PROJECT_VALUE = var.main_project_tag
+  }))
+}

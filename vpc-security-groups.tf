@@ -127,6 +127,38 @@ resource "aws_security_group_rule" "consul_server_allow_client_8300" {
   description              = "Allow RPC traffic from Consul Client to Server.  For client and server agents to send and receive data stored in Consul."
 }
 
+
+resource "aws_security_group_rule" "consul_server_allow_nomad_server_8500" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow HTTP traffic from Nomad Server."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_nomad_server_8301" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8301
+  to_port                  = 8301
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow LAN gossip traffic from Nomad Server to Consul Server.  For managing cluster membership for distributed health check of the agents."
+}
+
+resource "aws_security_group_rule" "consul_server_allow_nomad_server_8300" {
+  security_group_id        = aws_security_group.consul_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8300
+  to_port                  = 8300
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow RPC traffic from Nomad Server to Consul Server.  For client and server agents to send and receive data stored in Consul."
+}
+
+
 resource "aws_security_group_rule" "consul_server_allow_server_8301" {
   security_group_id        = aws_security_group.consul_server.id
   type                     = "ingress"
@@ -209,16 +241,6 @@ resource "aws_security_group_rule" "consul_client_allow_9090" {
   description              = "Allow traffic from Consul Clients for Fake Service."
 }
 
-resource "aws_security_group_rule" "consul_client_allow_22_bastion" {
-  security_group_id        = aws_security_group.consul_client.id
-  type                     = "ingress"
-  protocol                 = "tcp"
-  from_port                = 22
-  to_port                  = 22
-  source_security_group_id = aws_security_group.bastion.id
-  description              = "Allow SSH traffic from consul bastion."
-}
-
 resource "aws_security_group_rule" "consul_client_allow_outbound" {
   security_group_id = aws_security_group.consul_client.id
   type              = "egress"
@@ -228,3 +250,81 @@ resource "aws_security_group_rule" "consul_client_allow_outbound" {
   cidr_blocks       = ["0.0.0.0/0"]
   description       = "Allow any outbound traffic."
 }
+
+## ------------ Nomad Server ports
+
+resource "aws_security_group" "nomad_server" {
+  name_prefix = "${var.main_project_tag}-nomad-server-sg"
+  description = "Firewall for the nomad servers."
+  vpc_id      = aws_vpc.consul.id
+  tags = merge(
+    { "Name" = "${var.main_project_tag}-nomad-server-sg" },
+    { "Project" = var.main_project_tag }
+  )
+}
+
+
+resource "aws_security_group_rule" "nomad_consul_client_allow_8500" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 8500
+  to_port                  = 8500
+  source_security_group_id = aws_security_group.load_balancer.id
+  description              = "Allow HTTP traffic from Load Balancer."
+}
+
+resource "aws_security_group_rule" "nomad_server_allow_4646_http" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 4646
+  to_port                  = 4646
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow http api traffic."
+}
+
+resource "aws_security_group_rule" "nomad_server_allow_4647_rpc" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 4647
+  to_port                  = 4647
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow rpc traffic from other nomad servers and clients."
+}
+
+
+resource "aws_security_group_rule" "nomad_server_allow_4648_serf" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "-1"
+  from_port                = 4648
+  to_port                  = 4648
+  source_security_group_id = aws_security_group.nomad_server.id
+  description              = "Allow serf traffic from other nomad servers."
+}
+
+
+resource "aws_security_group_rule" "nomad_server_allow_22_bastion" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 22
+  to_port                  = 22
+  source_security_group_id = aws_security_group.bastion.id
+  description              = "Allow SSH traffic from consul bastion."
+}
+
+resource "aws_security_group_rule" "nomad_server_allow_outbound" {
+  security_group_id = aws_security_group.nomad_server.id
+  type              = "egress"
+  protocol          = "-1"
+  from_port         = 0
+  to_port           = 0
+  cidr_blocks       = ["0.0.0.0/0"]
+  description       = "Allow any outbound traffic."
+}
+
+### ----------
+
