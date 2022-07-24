@@ -124,7 +124,6 @@ resource "aws_launch_template" "consul_client_api" {
 
 
 # Nomad Server API Launch Template
-# Consul Client Web Launch Template
 resource "aws_launch_template" "nomad_server" {
   name_prefix            = "${var.main_project_tag}-nomad-server-lt-"
   image_id               = var.ami_id

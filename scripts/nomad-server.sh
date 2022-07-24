@@ -33,3 +33,27 @@ EOF
 # Start Consul
 sudo systemctl start consul
 
+cat > /etc/nomad.d/nomad.hcl <<- EOF
+data_dir  = "/opt/nomad/data"
+bind_addr = "0.0.0.0"
+
+server {
+  enabled          = true
+  bootstrap_expect = 3
+  raft_protocol    = 3
+}
+
+client {
+  enabled = true
+  servers = ["127.0.0.1"]
+}
+
+
+ui {
+  enabled =  true
+}
+
+EOF
+
+
+sudo systemctl start nomad

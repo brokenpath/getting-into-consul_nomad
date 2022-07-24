@@ -116,19 +116,19 @@ variable "client_api_max_count" {
 variable "nomad_server_desired_count" {
   description = "The desired number of nomad servers."
   type        = number
-  default     = 1
+  default     = 3
 }
 
 variable "nomad_server_min_count" {
   description = "The minimum number of nomad servers."
   type        = number
-  default     = 1
+  default     = 3
 }
 
 variable "nomad_server_max_count" {
   description = "The maximum number of nomad servers."
   type        = number
-  default     = 1
+  default     = 3
 }
 
 # Allowed Traffic into the Bastion

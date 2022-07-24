@@ -264,6 +264,18 @@ resource "aws_security_group" "nomad_server" {
 }
 
 
+resource "aws_security_group_rule" "nomad_server_allow_lb_4646" {
+  security_group_id        = aws_security_group.nomad_server.id
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 4646
+  to_port                  = 4646
+  source_security_group_id = aws_security_group.load_balancer.id
+  description              = "Allow traffic from Load Balancer to Nomad server for UI."
+}
+
+
+
 resource "aws_security_group_rule" "nomad_consul_client_allow_8500" {
   security_group_id        = aws_security_group.nomad_server.id
   type                     = "ingress"
